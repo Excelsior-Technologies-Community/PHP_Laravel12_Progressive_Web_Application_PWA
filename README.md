@@ -1,5 +1,13 @@
-# PHP_Laravel12_Progressive_Web_Application (PWA)
+# PHP_Laravel12_Progressive_Web_Application_PWA
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white" />
+  <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white" />
+  <img src="https://img.shields.io/badge/PWA-Enabled-5A0FC8?style=for-the-badge&logo=googlechrome&logoColor=white" />
+  <img src="https://img.shields.io/badge/Service%20Worker-Active-0A66C2?style=for-the-badge&logo=javascript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Offline-Supported-2EA44F?style=for-the-badge&logo=cachet&logoColor=white" />
+  <img src="https://img.shields.io/badge/HTTPS-Required-success?style=for-the-badge&logo=letsencrypt&logoColor=white" />
+</p>
 
 ---
 
