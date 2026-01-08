@@ -381,6 +381,9 @@ self.addEventListener("fetch", (event) => {
 * Refresh page
 
   <img width="1776" height="997" alt="Screenshot 2026-01-08 142119" src="https://github.com/user-attachments/assets/8e921b39-3ac7-4622-bd66-0456da6caaae" />
+*
+
+ * <img width="1919" height="1033" alt="image" src="https://github.com/user-attachments/assets/6b184cfd-9402-4736-9c2f-6e58af8d7b2d" />
 
 
 ---
