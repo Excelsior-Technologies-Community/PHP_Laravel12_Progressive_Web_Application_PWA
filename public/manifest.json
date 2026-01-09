@@ -1,6 +1,7 @@
 {
     "name": "Laravel 12 PWA",
     "short_name": "L12PWA",
+    "scope": "/",
     "background_color": "#ffffff",
     "theme_color": "#0d6efd",
     "display": "standalone",
