@@ -3,9 +3,14 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 
+
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/product'); //  PWA start page
 });
 
-// Product CRUD
+Route::get('/install', function () {
+    return view('install'); //  browser-only install page
+});
+
 Route::resource('product', ProductController::class);
+
