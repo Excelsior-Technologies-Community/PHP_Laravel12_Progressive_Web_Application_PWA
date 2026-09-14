@@ -2,10 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
     <title>Laravel PWA</title>
 
     @PwaHead
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
         * {
@@ -32,20 +37,71 @@
 
         h1 {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         h2 {
             margin-bottom: 20px;
         }
 
-        /* Container */
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: auto;
         }
 
-        /* Buttons */
+        /* =========================
+           PWA STATUS BAR
+        ========================= */
+
+        .pwa-status-bar {
+            max-width: 1000px;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-online {
+            background: rgba(25, 135, 84, 0.18);
+            color: #52d48b;
+            border: 1px solid rgba(25, 135, 84, 0.4);
+        }
+
+        .status-offline {
+            background: rgba(220, 53, 69, 0.18);
+            color: #ff7b88;
+            border: 1px solid rgba(220, 53, 69, 0.4);
+        }
+
+        .cache-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 14px;
+            border-radius: 30px;
+            background: rgba(13, 110, 253, 0.15);
+            color: #72aaff;
+            border: 1px solid rgba(13, 110, 253, 0.3);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
         .btn {
             padding: 10px 18px;
             border-radius: 25px;
@@ -53,6 +109,7 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
+            display: inline-block;
         }
 
         .btn-primary {
@@ -70,11 +127,20 @@
             color: #fff;
         }
 
-        .btn:hover {
-            opacity: 0.9;
+        .btn-success {
+            background: #198754;
+            color: #fff;
         }
 
-        /* Cards */
+        .btn:hover {
+            opacity: 0.9;
+            text-decoration: none;
+        }
+
+        /* =========================
+           CARDS
+        ========================= */
+
         .card {
             background: #111;
             border-radius: 16px;
@@ -92,7 +158,10 @@
             font-weight: bold;
         }
 
-        /* Forms */
+        /* =========================
+           FORMS
+        ========================= */
+
         form {
             background: #111;
             padding: 25px;
@@ -100,7 +169,8 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
 
-        input, textarea {
+        input,
+        textarea {
             width: 100%;
             padding: 12px;
             margin-top: 6px;
@@ -132,10 +202,70 @@
             margin-top: 10px;
         }
 
-        /* Mobile */
+        /* =========================
+           OFFLINE NOTICE
+        ========================= */
+
+        .offline-notice {
+            display: none;
+            background: rgba(220, 53, 69, 0.15);
+            border: 1px solid rgba(220, 53, 69, 0.35);
+            color: #ff9da7;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .offline-notice.show {
+            display: block;
+        }
+
+        /* =========================
+           CACHE NOTICE
+        ========================= */
+
+        .cache-notice {
+            display: none;
+            background: rgba(13, 110, 253, 0.12);
+            border: 1px solid rgba(13, 110, 253, 0.3);
+            color: #8ab9ff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .cache-notice.show {
+            display: block;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
         @media(max-width: 600px) {
+
+            body {
+                padding: 12px;
+            }
+
             h1 {
                 font-size: 22px;
+            }
+
+            .pwa-status-bar {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .status-badge,
+            .cache-status {
+                justify-content: center;
+            }
+
+            .container {
+                width: 100%;
             }
         }
     </style>
@@ -145,14 +275,194 @@
 
     <h1>Laravel 12 PWA</h1>
 
+    {{-- PWA STATUS --}}
+    <div class="pwa-status-bar">
+
+        <div
+            id="networkStatus"
+            class="status-badge status-online"
+        >
+            🟢 Online
+        </div>
+
+        <div
+            id="cacheStatus"
+            class="cache-status"
+        >
+            📦 PWA Cache Ready
+        </div>
+
+    </div>
+
+    {{-- OFFLINE MESSAGE --}}
+    <div
+        id="offlineNotice"
+        class="offline-notice"
+    >
+        🔴 You are currently offline.
+        Previously cached PWA content will be used where available.
+    </div>
+
+    {{-- CACHE MESSAGE --}}
+    <div
+        id="cacheNotice"
+        class="cache-notice"
+    >
+        📦 You are viewing cached product data.
+        Some actions require an internet connection.
+    </div>
+
     <div class="container">
+
         @yield('content')
+
     </div>
 
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
+
+        /*
+        |--------------------------------------------------------------------------
+        | ONLINE / OFFLINE STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        const networkStatus =
+            document.getElementById('networkStatus');
+
+        const offlineNotice =
+            document.getElementById('offlineNotice');
+
+        function updateNetworkStatus() {
+
+            if (navigator.onLine) {
+
+                networkStatus.textContent = '🟢 Online';
+
+                networkStatus.classList.remove(
+                    'status-offline'
+                );
+
+                networkStatus.classList.add(
+                    'status-online'
+                );
+
+                offlineNotice.classList.remove('show');
+
+            } else {
+
+                networkStatus.textContent = '🔴 Offline';
+
+                networkStatus.classList.remove(
+                    'status-online'
+                );
+
+                networkStatus.classList.add(
+                    'status-offline'
+                );
+
+                offlineNotice.classList.add('show');
+            }
         }
+
+        window.addEventListener(
+            'online',
+            updateNetworkStatus
+        );
+
+        window.addEventListener(
+            'offline',
+            updateNetworkStatus
+        );
+
+        updateNetworkStatus();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SERVICE WORKER REGISTRATION
+        |--------------------------------------------------------------------------
+        */
+
+        if ('serviceWorker' in navigator) {
+
+            window.addEventListener('load', function () {
+
+                navigator.serviceWorker
+                    .register('/sw.js')
+                    .then(function (registration) {
+
+                        console.log(
+                            'Service Worker registered:',
+                            registration.scope
+                        );
+
+                    })
+                    .catch(function (error) {
+
+                        console.error(
+                            'Service Worker registration failed:',
+                            error
+                        );
+
+                    });
+
+            });
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CACHE STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        if ('caches' in window) {
+
+            caches
+                .open('laravel-pwa-pages-v3')
+                .then(function (cache) {
+
+                    cache.match('/product')
+                        .then(function (response) {
+
+                            if (response) {
+
+                                console.log(
+                                    'Product page is available in cache.'
+                                );
+
+                            }
+
+                        });
+
+                })
+                .catch(function (error) {
+
+                    console.log(
+                        'Cache check failed:',
+                        error
+                    );
+
+                });
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SHOW CACHED MODE
+        |--------------------------------------------------------------------------
+        */
+
+        if (!navigator.onLine) {
+
+            const cacheNotice =
+                document.getElementById('cacheNotice');
+
+            if (cacheNotice) {
+                cacheNotice.classList.add('show');
+            }
+        }
+
     </script>
 
 </body>
