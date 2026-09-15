@@ -1,13 +1,12 @@
 "use strict";
 
-
 /*
 |--------------------------------------------------------------------------
 | CACHE NAMES
 |--------------------------------------------------------------------------
 */
 
-const CACHE_NAME = "laravel-pwa-offline-v3";
+const CACHE_NAME = "laravel-pwa-offline-v4";
 
 const PRODUCT_CACHE_NAME =
     "laravel-pwa-products-v1";
@@ -47,7 +46,7 @@ self.addEventListener("install", (event) => {
 
     /*
     |--------------------------------------------------------------------------
-    | Activate new Service Worker immediately
+    | Tell browser that a new Service Worker is available
     |--------------------------------------------------------------------------
     */
 
@@ -110,6 +109,29 @@ self.addEventListener("activate", (event) => {
 
     self.clients.claim();
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notify all open pages about new Service Worker
+    |--------------------------------------------------------------------------
+    */
+
+    self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true
+    })
+    .then((clients) => {
+
+        clients.forEach((client) => {
+
+            client.postMessage({
+                type: "PWA_UPDATE_AVAILABLE"
+            });
+
+        });
+
+    });
+
 });
 
 
@@ -152,7 +174,7 @@ self.addEventListener("fetch", (event) => {
 
             /*
             |--------------------------------------------------------------------------
-            | Try Network First
+            | Network First
             |--------------------------------------------------------------------------
             */
 
