@@ -46,6 +46,23 @@ Route::get(
 
 /*
 |--------------------------------------------------------------------------
+| PWA Offline Background Sync & API List
+|--------------------------------------------------------------------------
+*/
+
+Route::post(
+    '/products/sync',
+    [ProductController::class, 'sync']
+)->name('product.sync');
+
+Route::get(
+    '/products/api-list',
+    [ProductController::class, 'apiList']
+)->name('product.apiList');
+
+
+/*
+|--------------------------------------------------------------------------
 | Bulk Delete Products
 |--------------------------------------------------------------------------
 */
