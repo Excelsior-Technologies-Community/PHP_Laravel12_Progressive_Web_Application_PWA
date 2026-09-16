@@ -2,16 +2,45 @@
     "name": "Laravel 12 PWA",
     "short_name": "L12PWA",
     "scope": "/",
-    "background_color": "#ffffff",
+    "background_color": "#0f0f0f",
     "theme_color": "#0d6efd",
     "display": "standalone",
-    "description": "Laravel 12 Progressive Web Application",
-    "start_url": "/",
+    "orientation": "any",
+    "description": "Laravel 12 Progressive Web Application with Offline Sync & Barcode Scanner",
+    "start_url": "/product",
+    "categories": [
+        "business",
+        "productivity",
+        "shopping"
+    ],
     "icons": [
         {
             "src": "/logo.png",
             "sizes": "512x512",
             "type": "image/png"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Add Product",
+            "short_name": "Add",
+            "description": "Quickly create a new product",
+            "url": "/product/create",
+            "icons": [{ "src": "/logo.png", "sizes": "512x512" }]
+        },
+        {
+            "name": "All Products",
+            "short_name": "Products",
+            "description": "View product catalog",
+            "url": "/product",
+            "icons": [{ "src": "/logo.png", "sizes": "512x512" }]
+        },
+        {
+            "name": "Export CSV",
+            "short_name": "Export",
+            "description": "Download products CSV report",
+            "url": "/products/export",
+            "icons": [{ "src": "/logo.png", "sizes": "512x512" }]
         }
     ]
 }

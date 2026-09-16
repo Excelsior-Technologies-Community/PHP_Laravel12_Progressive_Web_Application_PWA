@@ -4,91 +4,65 @@
 
 <h2>Edit Product</h2>
 
-
-<div
-    id="editOfflineWarning"
-    style="
-        display:none;
-        background:rgba(220,53,69,0.15);
-        border:1px solid rgba(220,53,69,0.35);
-        color:#ff9da7;
-        padding:12px 16px;
-        border-radius:12px;
-        margin-bottom:20px;
-    "
->
-    🔴 You are offline.
-    Updating a product requires an internet connection.
+<div id="editOfflineStatus" style="display:none; background:rgba(255,193,7,0.15); border:1px solid rgba(255,193,7,0.35); color:#ffd24d; padding:12px 16px; border-radius:12px; margin-bottom:20px; font-size:14px;">
+    ⚡ <strong>Offline Mode Active:</strong> You can edit products offline. Changes will be saved in IndexedDB and synchronized to the database automatically when online.
 </div>
 
-
-<form
-    method="POST"
-    action="{{ route('product.update', $product) }}"
-    enctype="multipart/form-data"
->
-
+<form id="editProductForm" method="POST" action="{{ route('product.update', $product) }}" enctype="multipart/form-data">
     @csrf
-
     @method('PUT')
 
-
-    {{-- PRODUCT NAME --}}
-
-    <label>
-        Product Name
-    </label>
+    {{-- PRODUCT NAME WITH BARCODE SCANNER --}}
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <label style="margin:0;">
+            Product Name / SKU <span style="color:#ff3b30;">*</span>
+        </label>
+        <button type="button" class="btn btn-warning" style="padding:4px 12px; font-size:12px; border-radius:16px;" onclick="window.openBarcodeScanner(function(code){ document.getElementById('editProductNameInput').value = code; })">
+            📷 Scan Code to Fill
+        </button>
+    </div>
 
     <input
         type="text"
+        id="editProductNameInput"
         name="name"
         value="{{ old('name', $product->name) }}"
         required
         placeholder="Product Name"
     >
 
-
     {{-- PRICE --}}
-
     <label>
-        Price
+        Price (₹) <span style="color:#ff3b30;">*</span>
     </label>
 
     <input
         type="number"
         name="price"
+        id="editProductPriceInput"
         step="0.01"
         min="0"
         value="{{ old('price', $product->price) }}"
         required
         placeholder="Price"
-        oninput="
-            this.value =
-            this.value.replace(
-                /[^0-9.]/g,
-                ''
-            )
-        "
+        oninput="this.value = this.value.replace(/[^0-9.]/g, '')"
     >
 
-
     {{-- DESCRIPTION --}}
-
     <label>
         Description
     </label>
 
     <textarea
         name="description"
+        id="editProductDescriptionInput"
         rows="4"
         placeholder="Product Description"
     >{{ old('description', $product->description) }}</textarea>
 
-
     {{-- IMAGE --}}
-
     <label>
-        Change Image
+        Change Image <span style="font-size:12px; color:#888;">(Online only)</span>
     </label>
 
     <input
@@ -97,107 +71,75 @@
         accept=".jpg,.jpeg,.png,.webp"
     >
 
-
     {{-- CURRENT IMAGE --}}
-
     @if($product->image)
-
-        <p>
+        <p style="margin:10px 0 5px; font-size:13px; color:#aaa;">
             Current Image
         </p>
 
         <img
             src="{{ asset('products/'.$product->image) }}"
             alt="{{ $product->name }}"
-            style="
-                width:160px;
-                height:160px;
-                object-fit:cover;
-                margin-top:10px;
-                border-radius:12px;
-            "
+            style="width:140px; height:140px; object-fit:cover; margin-top:5px; border-radius:12px;"
         >
-
     @endif
 
-
     {{-- ACTION BUTTONS --}}
-
-    <div
-        class="actions"
-        style="margin-top:20px;"
-    >
-
-        <button
-            id="updateProductBtn"
-            type="submit"
-            class="btn btn-primary"
-        >
-            Update Product
+    <div class="actions" style="margin-top:20px;">
+        <button id="updateProductBtn" type="submit" class="btn btn-primary">
+            💾 Update Product
         </button>
 
-
-        <a
-            href="{{ route('product.index') }}"
-            class="btn btn-secondary"
-        >
+        <a href="{{ route('product.index') }}" class="btn btn-secondary">
             Cancel
         </a>
-
     </div>
 
 </form>
 
-
 <script>
-
-    const warning =
-        document.getElementById(
-            'editOfflineWarning'
-        );
-
-    const updateButton =
-        document.getElementById(
-            'updateProductBtn'
-        );
-
+    const offlineStatus = document.getElementById('editOfflineStatus');
 
     function checkEditConnection() {
-
-        if (navigator.onLine) {
-
-            warning.style.display = 'none';
-
-            updateButton.disabled = false;
-
-            updateButton.style.opacity = '1';
-
+        if (!navigator.onLine) {
+            offlineStatus.style.display = 'block';
         } else {
-
-            warning.style.display = 'block';
-
-            updateButton.disabled = true;
-
-            updateButton.style.opacity = '0.5';
-
+            offlineStatus.style.display = 'none';
         }
-
     }
 
-
-    window.addEventListener(
-        'online',
-        checkEditConnection
-    );
-
-    window.addEventListener(
-        'offline',
-        checkEditConnection
-    );
-
-
+    window.addEventListener('online', checkEditConnection);
+    window.addEventListener('offline', checkEditConnection);
     checkEditConnection();
 
+    // Offline Interception for Product Update
+    document.getElementById('editProductForm').addEventListener('submit', async function (e) {
+        if (!navigator.onLine) {
+            e.preventDefault();
+
+            const name = document.getElementById('editProductNameInput').value.trim();
+            const price = document.getElementById('editProductPriceInput').value.trim();
+            const description = document.getElementById('editProductDescriptionInput').value.trim();
+
+            if (!name || !price) {
+                alert('Please provide product name and price.');
+                return;
+            }
+
+            await window.PwaEngine.queueOfflineAction('UPDATE', {
+                id: {{ $product->id }},
+                name: name,
+                price: parseFloat(price),
+                description: description
+            });
+
+            window.PwaEngine.showToast(`💾 Changes for "${name}" saved in IndexedDB! Will sync when online.`, 'success');
+
+            setTimeout(() => {
+                window.location.href = "{{ route('product.index') }}";
+            }, 1000);
+        }
+    });
 </script>
 
 @endsection
